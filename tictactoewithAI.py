@@ -57,10 +57,12 @@ def is_game_over():
     
     if(win):
         tk.messagebox.showinfo(title = 'Game Over!', message = winner + ' wins')
-        window.destroy()    
+        window.destroy()     
+        quit()
     if(spaces_filled_ctr == 9):
         tk.messagebox.showinfo(title = 'Game Over!', message = 'Stalemate')
-        window.destroy()    
+        window.destroy()
+        quit()
     
 def AI():
     possible_moves = []
