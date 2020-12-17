@@ -2,11 +2,13 @@ import tkinter as tk
 from tkinter import messagebox
 from random import randrange
 
+# Create root window and 2d button array
 window = tk.Tk()
 buttons = [[tk.Button() for i in range(3)] for j in range(3)]
+
+# Game config
 player = 'X'
 ai = 'O'
-
 human_moves_first = True
 
 # fill 2d list with blank buttons with that call onClick and pass their indices in the list when pressed
@@ -14,9 +16,7 @@ for i in range(3):
     for j in range(3):
         buttons[i][j] = (tk.Button(window, text=' ', 
                          command = lambda i = i, j = j: onClick(i, j), width = 10, height = 10))
-        buttons[i][j].grid(row = i, column = j)
-
-             
+        buttons[i][j].grid(row = i, column = j)             
         
 def onClick(i,j):
     # human move
@@ -26,8 +26,6 @@ def onClick(i,j):
     # ai move
     AI()
     is_game_over()
-
-
 
 #returns True if win detected, False otherwise        
 def is_game_over():
@@ -69,14 +67,14 @@ def AI():
     move_values = []
     for i in range(3):
         for j in range(3):
-            #traverse array and find all moves available to be made
+            # traverse array and find all moves available to be made
             if(buttons[i][j]['text'] == ' '):
                 # add them to possible moves list
                 possible_moves.append([i,j])
                 # score them
                 move_values.append(evaluate_move(i,j))
     
-    #find the highest move value and record its place in the list
+    # find the highest move value and record its place in the list
     highest_val = 0
     highest_val_idx = 0
     for i in range(len(possible_moves)):
@@ -84,7 +82,7 @@ def AI():
             highest_val = move_values[i]
             highest_val_idx = i
             
-    #this means we're making the first move, so make it random just for fun
+    # this means we're making the first move, so make it random just for fun
     if(highest_val == 0):
         buttons[randrange(3)][randrange(3)]['text'] = ai
     else:
@@ -94,12 +92,12 @@ def AI():
             
 def evaluate_move(i,j):
     value = 0
-    opponent_this_row = False;
-    opponent_this_col = False;
-    opponent_this_diag = False;
-    self_this_row = False;
-    self_this_col = False;
-    self_this_diag = False;
+    opponent_this_row = False
+    opponent_this_col = False
+    opponent_this_diag = False
+    opp_count_row = 0
+    opp_count_col = 0
+    opp_count_diag = 0
     
     # tune our values for whether we move first or human does
     if(human_moves_first):
@@ -117,28 +115,28 @@ def evaluate_move(i,j):
             # we want to block the opponent if they have one in this row/col/diagonal
             if(buttons[x][y]['text'] == player):
                 if(x == i):
-                    opponent_this_row = True
+                    opp_count_row += 1
+                    opponent_this_row = True;
                     value += opp_this_rowcoldiag_value
                 if(y == j):
-                    opponent_this_col = True
+                    opp_count_col += 1
+                    opponent_this_col = True;
                     value += opp_this_rowcoldiag_value
                 if(in_same_diagonal([[x,y],[i,j]])):
-                    opponent_this_diag = True
+                    opp_count_diag += 1
+                    opponent_this_diag = True;
                     value += opp_this_rowcoldiag_value
             # we want to complete our row if we already have one in this 
             # row/col/diagonal and the opponent doesn't        
             if(buttons[x][y]['text'] == ai):
                 if(x == i):
-                    self_this_row = True
-                    if(not(opponent_this_row)):
+                    if(opp_count_row == 0):
                         value += self_this_rowcoldiag_and_not_opp
                 if(y == j):
-                    self_this_col = True
-                    if(not(opponent_this_col)):
+                    if(opp_count_col == 0):
                         value += self_this_rowcoldiag_and_not_opp   
                 if(in_same_diagonal([[x,y],[i,j]])):
-                    self_this_diag = True
-                    if(not(opponent_this_diag)):
+                    if(opp_count_diag == 0):
                         value += self_this_rowcoldiag_and_not_opp 
               
     # placing a mark when the opponent has one in the row but not the column/diagonal, 
@@ -147,6 +145,9 @@ def evaluate_move(i,j):
        opponent_this_row != opponent_this_diag or
        opponent_this_col != opponent_this_diag):
         value += opp_has_one_in_row_but_not_col
+        
+    if(opp_count_row == 2 or opp_count_col == 2 or opp_count_diag == 2):
+        value = value * 2
  
     return value
     
@@ -158,13 +159,13 @@ def in_same_diagonal(two_coords_list):
     diag_1 = [[0,0],[1,1],[2,2]]
     diag_2 = [[0,2],[1,1],[2,0]]
     
-    # if they aren't in the same diagonal, also return false    
+    # if they are in the same diagonal, return true
     if((pair_1 in diag_1) and (pair_2 in diag_1)):
         return True
     
     if((pair_1 in diag_2) and (pair_2 in diag_2)):
         return True    
-    
+     
     return False
         
 if(not(human_moves_first)):
