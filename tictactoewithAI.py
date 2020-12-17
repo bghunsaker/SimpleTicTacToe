@@ -6,7 +6,7 @@ window = tk.Tk()
 buttons = [[tk.Button() for i in range(3)] for j in range(3)]
 player = 'X'
 ai = 'O'
-winner = ' '
+
 human_moves_first = True
 
 # fill 2d list with blank buttons with that call onClick and pass their indices in the list when pressed
@@ -19,34 +19,50 @@ for i in range(3):
              
         
 def onClick(i,j):
+    # human move
     if(buttons[i][j]['text'] == ' '):
         buttons[i][j]['text'] = player
-    if(won()):
-        tk.messagebox.showinfo(title = 'Game Over!', message = winner + ' wins')
-        window.destroy()
+    is_game_over()
+    # ai move
     AI()
-    if(won()):
-        tk.messagebox.showinfo(title = 'Game Over!', message = winner + ' wins')
-        window.destroy()    
+    is_game_over()
+
 
 
 #returns True if win detected, False otherwise        
-def won():
-    global winner
+def is_game_over():
+    win = False;
+    winner = ' '
+    spaces_filled_ctr = 0
+    
     for i in range(3):
+        # check for row win
         if(buttons[i][0]['text'] == buttons[i][1]['text'] == buttons[i][2]['text'] != ' '):
             winner = buttons[i][0]['text']
-            return True
+            win = True
+        # check for column win
         if(buttons[0][i]['text'] == buttons[1][i]['text'] == buttons[2][i]['text'] != ' '):
             winner = buttons[0][i]['text']
-            return True
+            win = True
+        # count filled spaces for stalemate detection
+        for j in range(3):
+            if(buttons[i][j]['text'] != ' '):
+                spaces_filled_ctr += 1
+    
+    # check each diagonal for win
     if(buttons[0][0]['text'] == buttons[1][1]['text'] == buttons[2][2]['text'] != ' '):
         winner = buttons[0][0]['text']
-        return True
+        win = True
     if(buttons[0][2]['text'] == buttons[1][1]['text'] == buttons[2][0]['text'] != ' '):
         winner = buttons[0][2]['text']
-        return True
-    return False;
+        win = True 
+    
+    if(win):
+        tk.messagebox.showinfo(title = 'Game Over!', message = winner + ' wins')
+        window.destroy()    
+    if(spaces_filled_ctr == 9):
+        tk.messagebox.showinfo(title = 'Game Over!', message = 'Stalemate')
+        window.destroy()    
     
 def AI():
     possible_moves = []
@@ -151,11 +167,6 @@ def in_same_diagonal(two_coords_list):
     
     return False
         
-        
-    
-    
-            
-    
 if(not(human_moves_first)):
     AI()     
    
